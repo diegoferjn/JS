@@ -1,24 +1,30 @@
-import { saveJSON, loadJSON, createInitialState, addDato } from './store.js';
+// src/main.js
+import { initForm } from './forms.js';
+import { renderList, switchTab } from './ui.js';
 
-const KEY = 'appState';
-
-// Inicializar: cargar si existe; si no, crear y guardar
-function initApp() {
-  let state = loadJSON(KEY);
-
-  if (!state) {
-    state = createInitialState();
-    saveJSON(KEY, state);
-  }
-
-  console.log('Estado cargado al iniciar:', state);
-  return state;
+function initTabs() {
+  // Listeners de pestañas
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+    });
+  });
 }
 
-// Ejemplo de uso muy simple (opcional de prueba):
-// const s1 = addDato('hola');
-// console.log('Tras añadir "hola":', s1);
-// const s2 = addDato(123);
-// console.log('Tras añadir 123:', s2);
+function initList() {
+  // Datos de ejemplo “como alumno” (no persistentes)
+  const escenarios = [
+    { id: 1, nombre: 'Escenario A', valor: 'Ejemplo A' },
+    { id: 2, nombre: 'Escenario B', valor: 'Ejemplo B' },
+  ];
+  renderList(escenarios);
+}
 
-initApp();
+export function init() {
+  initTabs();
+  initForm();
+  initList();
+}
+
+// Iniciar app
+init();
