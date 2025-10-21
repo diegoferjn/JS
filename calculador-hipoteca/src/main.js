@@ -1,55 +1,73 @@
-// 1) Filtrar números
-const numeros = [1, 5, 10, 15, 20, 25];
+/***********************
+ * Funciones del ejercicio
+ ***********************/
 
-// Quedarme con los > 10
-const mayoresQueDiez = numeros.filter(function (n) {
-  return n > 10;
-});
-console.log('Mayores que 10:', mayoresQueDiez); // [15, 20, 25]
+// 1) calcularPrincipal(precio, porcentaje)
+//    Usa la fórmula de clase: principal = precio * (porcentaje / 100)
+//    Redondeo con Math.round (está en los manuales de Math)
+function calcularPrincipal(precio, porcentaje) {
+  // asumo números válidos (validaciones las hacemos con funciones aparte)
+  const principal = precio * (porcentaje / 100);
+  return Math.round(principal);
+}
 
-// 2) Mapear datos
-// a) cada número * 2
-const porDos = numeros.map(function (n) {
-  return n * 2;
-});
-console.log('Multiplicados por 2:', porDos); // [2, 10, 20, 30, 40, 50]
+// 2) Validaciones básicas (condicionales)
+function esValidoInteres(interes) {
+  // válido si 0 <= interes <= 20
+  return interes >= 0 && interes <= 20;
+}
 
-// b) array de objetos { valor, doble }
-const objetosConDoble = numeros.map(function (n) {
-  return {
-    valor: n,
-    doble: n * 2
-  };
-});
-console.log('Objetos (valor, doble):', objetosConDoble);
-// [ {valor:1, doble:2}, {valor:5, doble:10}, ... ]
+function esValidoPlazo(plazo) {
+  // válido si 1 <= plazo <= 50
+  return plazo >= 1 && plazo <= 50;
+}
 
-// 3) Ordenar números
-// sort muta el array: primero de menor a mayor
-numeros.sort(function (a, b) {
-  return a - b;
-});
-console.log('Orden ascendente:', numeros); // [1, 5, 10, 15, 20, 25]
+// 3) formatearMoneda(cantidad)
+//    Como no tenemos formateo de moneda en los manuales, hago algo MUY simple:
+//    devuelvo un string con el símbolo de euro delante.
+function formatearMoneda(cantidad) {
+  // (sin toLocaleString ni Intl, que NO están en los manuales)
+  return "€ " + cantidad;
+}
 
-// luego de mayor a menor (sobre el mismo array)
-numeros.sort(function (a, b) {
-  return b - a;
-});
-console.log('Orden descendente:', numeros); // [25, 20, 15, 10, 5, 1]
+// 4) calcularCuotaMensual(principal, interesAnual, meses)
+//    *** NO la implemento *** porque la “fórmula adecuada” no aparece en los manuales.
+//    Dejo un esqueleto para que se vea la intención.
+function calcularCuotaMensual(principal, interesAnual, meses) {
+  // Falta la fórmula en los materiales => no puedo implementarla correctamente.
+  // return ...;
+  return null; // marcador de "no implementado"
+}
 
-// 4) Calcular estadísticas
-// a) suma con reduce
-const suma = numeros.reduce(function (acum, n) {
-  return acum + n;
-}, 0);
-console.log('Suma total:', suma);
 
-// b) promedio (media)
-const promedio = suma / numeros.length;
-console.log('Promedio:', promedio);
+/***********************
+ * Pruebas por consola (simulando el “manejador”)
+ ***********************/
+const precio = 200000;      // € 200.000
+const porcentaje = 80;      // 80%
+const plazoAnios = 30;      // 30 años
+const interesAnual = 2.5;   // 2.5%
 
-// c) verificar si hay algún número > 20
-const hayMayorQueVeinte = numeros.some(function (n) {
-  return n > 20;
-});
-console.log('¿Algún número > 20?:', hayMayorQueVeinte);
+// Validaciones simples con condicionales
+if (!esValidoPlazo(plazoAnios)) {
+  console.log("Error: el plazo debe estar entre 1 y 50 años.");
+} else if (!esValidoInteres(interesAnual)) {
+  console.log("Error: el interés anual debe estar entre 0% y 20%.");
+} else {
+  // Calcular principal
+  const principal = calcularPrincipal(precio, porcentaje);
+  console.log("Principal calculado:", principal);
+
+  // Formatear (versión simple)
+  console.log("Principal (formateado):", formatearMoneda(principal));
+
+  // Calcular cuota mensual (no implementada por falta de fórmula)
+  const meses = plazoAnios * 12;
+  const cuota = calcularCuotaMensual(principal, interesAnual, meses);
+
+  if (cuota === null) {
+    console.log("Cuota mensual: no disponible (falta la fórmula en los manuales).");
+  } else {
+    console.log("Cuota mensual:", formatearMoneda(cuota));
+  }
+}
