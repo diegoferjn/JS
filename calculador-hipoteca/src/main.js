@@ -1,129 +1,86 @@
-// Ejercicio: Tipos complejos — Array, Object, Date
-console.log("App JS cargado");
+// Manejador del formulario y validaciones con condicionales
+const form = document.getElementById('calc-form');
+const errorBox = document.getElementById('error-messages');
+const resultsBox = document.getElementById('calc-results');
+const resultsText = document.getElementById('calc-summary');
 
-// ---------- 1) Crear estructura de datos completa ----------
-
-// Pequeño helper para formatear números y fechas
-const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
-const toISODate = (d) =>
-  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
-// Entradas (inputs) de ejemplo (valores sencillos para el ejercicio)
-const precioVivienda = 200_000;           // number
-const porcentajeFinanciacion = 80;        // number (porcentaje)
-const principal = precioVivienda * (porcentajeFinanciacion / 100); // number
-const plazoAnios = 30;                     // number (años)
-const interesNominalAnual = 3.0;          // number (porcentaje)
-
-// Fechas
-const fechaInicio = new Date(); // ahora
-// Sumo ~30 años con milisegundos (simple y suficiente para el nivel visto)
-const treintaAniosMs = 30 * 365 * 24 * 60 * 60 * 1000;
-const fechaFin = new Date(fechaInicio.getTime() + treintaAniosMs);
-
-// Formato ISO básico con getFullYear/getMonth/getDate (sin toISOString)
-const fechaInicioISO = toISODate(fechaInicio);
-const fechaFinISO = toISODate(fechaFin);
-
-console.log("Fecha inicio:", fechaInicioISO);
-console.log("Fecha fin (aprox +30 años):", fechaFinISO);
-
-// Objeto inputs
-const inputs = {
-  precioVivienda,
-  porcentajeFinanciacion,
-  principal,
-  plazoAnios,
-  interesNominalAnual,
-  fechaInicioISO
-};
-
-// Objeto results (valores de ejemplo para el ejercicio)
-const results = {
-  cuota: 0,              // aún no calculamos la fórmula real en este bloque
-  interesesTotales: 0,
-  costeTotal: 0,
-  fechaFinISO
-};
-
-// Tabla de amortización (schedule) vacía por ahora
-const schedule = [];
-
-// scenario combina inputs + results + schedule
-const scenario = {
-  inputs,
-  results,
-  schedule
-};
-
-console.log("Scenario (estructura completa):", scenario);
-
-// ---------- 2) Crear array de escenarios ----------
-
-const scenarios = [];
-
-// Tres escenarios sencillos (distintos en nombre, precio, plazo, interés)
-scenarios.push({
-  nombre: "Escenario A",
-  precio: 180000,
-  plazo: 25,
-  interes: 2.5
-});
-//holi jijiji
-scenarios.push({
-  nombre: "Escenario B",
-  precio: 220000,
-  plazo: 30,
-  interes: 3.0
+// (Opcional de UX) conmutar pestañas por accesibilidad visual simple (no es obligatorio en este ejercicio)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(sec => sec.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
 });
 
-scenarios.push({
-  nombre: "Escenario C",
-  precio: 150000,
-  plazo: 20,
-  interes: 3.2
+form.addEventListener('submit', (ev) => {
+  ev.preventDefault();
+
+  // 1) Inicio
+  let isValid = true;
+  errorBox.textContent = ''; // limpia errores
+  resultsBox.classList.add('hidden'); // se mostrará solo si todo está OK
+
+  // 2) Recoger valores
+  const data = new FormData(form);
+  const precio = parseFloat(data.get('precio'));
+  const porcentaje = parseFloat(data.get('porcentaje'));
+  const plazo = parseFloat(data.get('plazo'));
+  const interes = parseFloat(data.get('interes'));
+  // fecha existe, pero el enunciado NO exige validarla/cálculo, la dejamos como recogida
+  const fecha = data.get('fecha');
+
+  // 3) Validaciones pedidas (mostramos SOLO el primer error encontrado)
+  // precioVivienda: > 0
+  if (!(precio > 0)) {
+    isValid = false;
+    errorBox.textContent = 'El precio de la vivienda debe ser mayor que 0.';
+  }
+
+  // plazo: entre 1 y 50
+  if (isValid && (plazo < 1 || plazo > 50)) {
+    isValid = false;
+    errorBox.textContent = 'El plazo debe estar entre 1 y 50 años.';
+  }
+
+  // interés: entre 0 y 20
+  if (isValid && (interes < 0 || interes > 20)) {
+    isValid = false;
+    errorBox.textContent = 'El interés anual debe estar entre 0% y 20%.';
+  }
+
+  // porcentajeFinanciacion: entre 1 y 100
+  if (isValid && (porcentaje < 1 || porcentaje > 100)) {
+    isValid = false;
+    errorBox.textContent = 'El porcentaje de financiación debe estar entre 1% y 100%.';
+  }
+
+  // 4) Cálculo del principal (según enunciado: usar la fórmula correspondiente)
+  // Con el contenido dado, la “fórmula” que sí podemos aplicar es: principal = precio * (porcentaje / 100)
+  let principal = 0;
+  if (isValid) {
+    principal = precio * (porcentaje / 100);
+    if (principal === 0) {
+      isValid = false;
+      errorBox.textContent = 'El principal no puede ser 0.';
+    }
+  }
+
+  // 5) Mostrar/Ocultar resultados
+  if (isValid) {
+    // mostar resultados y ocultar error
+    errorBox.textContent = '';
+    resultsBox.classList.remove('hidden');
+
+    // No se pide realizar la cuota hipotecaria (no se proporcionó fórmula en los manuales),
+    // así que mostramos un resumen simple con los valores validados y el principal calculado.
+    resultsText.textContent =
+      `Precio: €${precio.toLocaleString()} — Financiación: ${porcentaje}% — ` +
+      `Plazo: ${plazo} años — Interés: ${interes}% — ` +
+      `Principal calculado: €${principal.toLocaleString()}`;
+  } else {
+    // ocultar resultados si hay error
+    resultsBox.classList.add('hidden');
+  }
 });
-
-console.log("Nº de escenarios:", scenarios.length);
-console.log("Primer escenario:", scenarios[0]);
-
-// ---------- 3) Crear tabla de amortización básica (3 filas) ----------
-
-// Para mantenerlo simple (nivel manuales), incremento por “meses” usando ~30 días
-const unMesMs = 30 * 24 * 60 * 60 * 1000;
-
-// Simulo 3 cuotas: cuotas fijas de ejemplo y un saldo que decrece
-let saldoRestante = principal;
-
-// Números sencillos para mostrar estructura (no es la fórmula real)
-const cuotaEj = 700;
-const interesMes1 = 300;
-const interesMes2 = 295;
-const interesMes3 = 290;
-
-const capitalMes1 = cuotaEj - interesMes1;
-saldoRestante -= capitalMes1;
-
-schedule.push({
-  mes: 1,
-  fecha: toISODate(new Date(fechaInicio.getTime() + 1 * unMesMs)),
-  cuota: cuotaEj,
-  interes: interesMes1,
-  capital: capitalMes1,
-  saldo: Math.max(0, Math.round(saldoRestante))
-});
-
-const capitalMes2 = cuotaEj - interesMes2;
-saldoRestante -= capitalMes2;
-
-schedule.push({
-  mes: 2,
-  fecha: toISODate(new Date(fechaInicio.getTime() + 2 * unMesMs)),
-  cuota: cuotaEj,
-  interes: interesMes2,
-  capital: capitalMes2,
-  saldo: Math.max(0, Math.round(saldoRestante))
-});
-
-const capitalMes3 = cuotaEj - interesMes3;
-saldoRestante -= capitalMes3;
