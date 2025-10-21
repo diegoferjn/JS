@@ -1,0 +1,15 @@
+/* Reset básico */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 { text-align: center; margin: 2rem 0; }
+
+p { margin-top: 1rem; text-align: center; }
